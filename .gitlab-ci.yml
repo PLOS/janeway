@@ -5,7 +5,6 @@ pull_upstream:
   stage: sync
   when: manual
   script:
-    - git checkout develop
     - git remote add upstream "https://github.com/openlibhums/janeway.git"
     - git checkout -b master --track upstream/master
     - git push -f origin master
