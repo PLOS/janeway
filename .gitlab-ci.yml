@@ -6,5 +6,6 @@ pull_upstream:
   when: manual
   script:
     - git remote add upstream "https://github.com/openlibhums/janeway.git"
+    - git fetch upstream
     - git checkout -b master --track upstream/master
     - git push -f origin master
