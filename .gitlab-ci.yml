@@ -6,6 +6,8 @@ pull_upstream:
   when: manual
   before_script:
     - echo -e "machine gitlab.com\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc
+    - git config --global user.email "${GITLAB_USER_EMAIL}"
+    - git config --global user.name "${GITLAB_USER_NAME}"
   script:
     - git remote add upstream "https://github.com/openlibhums/janeway.git"
     - git fetch upstream
