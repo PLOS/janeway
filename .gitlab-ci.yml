@@ -4,6 +4,8 @@ stages:
 pull_upstream:
   stage: sync
   when: manual
+  before_script:
+    - echo -e "machine gitlab.com\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc
   script:
     - git remote add upstream "https://github.com/openlibhums/janeway.git"
     - git fetch upstream
