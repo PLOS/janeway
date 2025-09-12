@@ -25,7 +25,6 @@
 	<div class="row">
         <section aria-label="Results">
             <div class="col m8">
-		    <hr aria-hidden="true" />
 		        {% for article in articles %}
 		            {% include "elements/article_listing.html" with article=article %}
 		        {% empty %}
