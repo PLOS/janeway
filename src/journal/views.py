@@ -2242,6 +2242,8 @@ def full_text_search(request):
         request,
     )
 
+    form.id = "search_form"
+
     if search_term:
         form.is_valid()
         articles = submission_models.Article.objects.search(
@@ -2253,7 +2255,7 @@ def full_text_search(request):
 
     paginate_by = request.GET.get("paginate_by", 25)
     if paginate_by == "all":
-        paginate_by = articles.count() if articles else 25
+        paginate_by = len(articles) if articles else 25
 
     paginator = Paginator(articles, paginate_by)
     page_number = request.GET.get("page")
@@ -2269,9 +2271,12 @@ def full_text_search(request):
         "page_obj": page_obj,
         "is_paginated": page_obj.has_other_pages(),
         "paginate_by": paginate_by,
-        "search_term": search_term,
+        "article_search": search_term,
         "keyword": keyword,
         "form": form,
+        "facet_form": form,
+        "order_by_choices": form.fields["sort"].choices,
+        "order_by": sort,
     }
 
     return render(request, template, context)
