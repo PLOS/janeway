@@ -14,33 +14,24 @@
 <section id="content">
 
     <div class="row">
-        <div class="columns large-8">
-            <hr aria-hidden="true" />
-            {% for article in articles %}
-                {% include "elements/journal/box_article.html" with article=article %}
-            {% empty %}
-                <p>{% trans 'No articles to display' %}.</p>
-            {% endfor %}
-            {% if articles %}
-                {% include "elements/pagination.html" with form_id=facet_form.id %}
-            {% endif %}
-        </div>
         <section class="invisible-landmark" aria-label="Results">
             <div class="columns large-8">
+                <hr aria-hidden="true" />
                 {% for article in articles %}
                     {% include "elements/journal/box_article.html" with article=article %}
                 {% empty %}
                     <p>{% trans 'No articles to display' %}.</p>
                 {% endfor %}
                 {% if articles %}
-                    {% include "elements/pagination.html" with form_id=form.id %}
+                    {% include "elements/pagination.html" with form_id=facet_form.id %}
                 {% endif %}
             </div>
         </section>
         <div class="columns large-4">
-            <div class="card">
-                <div class="card-block">
-                    <form method="GET" id="search_form">
+            <section class="invisible-landmark" aria-label="{% trans 'Search' %}">
+                <div class="card">
+                    <div class="card-block">
+                        <form method="GET" id="search_form">
                         <div class="form-group">
                             {% if not keyword %}
                                 {% include 'elements/forms/errors.html'  with form=form%}
