@@ -40,6 +40,7 @@ from django.utils.functional import cached_property
 from django.utils.html import mark_safe
 from django.core.exceptions import ValidationError
 import swapper
+import re
 
 from core.file_system import JanewayFileSystemStorage
 from core.model_utils import (
@@ -3246,8 +3247,30 @@ class Field(models.Model):
         related_name="fields",
     )
 
+    slug = models.CharField(
+        max_length=40,
+    )
+
     class Meta:
         ordering = ("order", "name")
+
+    def clean(self):
+        """Ensure slug minimum length."""
+        if self.slug:
+            if len(self.slug) < 4:
+                raise ValidationError(
+                    "Slug must be at least four characters in length."
+                )
+        elif self.name:
+            """If not specified, transform name field into slug"""
+
+            self.slug = re.sub(r'\s','-',self.name.strip().lower())
+            
+
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return "Field: {0} ({1})".format(self.name, self.kind)
