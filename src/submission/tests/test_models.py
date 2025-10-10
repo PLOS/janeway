@@ -4,11 +4,31 @@ __license__ = "AGPL v3"
 __maintainer__ = "Open Library of Humanities"
 
 from django.db import IntegrityError
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from submission import models
 from utils.testing import helpers
 
+class FieldModelTests(TestCase):
+    def test_default_slug(self):
+        field = models.Field.objects.create(
+            name="My Test Name",
+            kind=models.field_kind_choices()[0],
+            order=0,
+            help_text="my test help text"
+        )
+        self.assertEqual("my-test-name", field.slug)
+
+    def test_slug_minimum_length(self):
+        with self.assertRaises(ValidationError):
+            field = models.Field.objects.create(
+                name="My Test Name",
+                kind=models.field_kind_choices()[0],
+                order=0,
+                help_text="my test help text",
+                slug="abc"
+            )
 
 class FrozenAuthorModelTests(TestCase):
     @classmethod
