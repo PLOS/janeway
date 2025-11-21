@@ -17,32 +17,20 @@
     <div id="article_opener" class="row">
     {% if not journal_settings.article.disable_article_large_image %}
         <div class="col-md-12">
-            {% if article.large_image_file.id or article.issue.large_image or journal.default_large_image %}
-                <div class="card">
-                    <img class="card-img img-fluid article-img"
-                        {% if article.large_image_file.id %}
-                            src="{% url 'article_file_download' 'id' article.id article.large_image_file.id %}"
-                        {% elif article.issue.large_image %}
-                            src="{{ article.issue.large_image.url }}"
-                        {% elif journal.default_large_image %}
-                            src="{{ journal.default_large_image.url }}"
-                        {% endif %}
-                        onerror="this.onerror=null; this.parentElement.classList.add('no-image');"
-                        alt="{{ article.title | striptags }}">
-            {% else %}
-                <div class="card no-image">
-                    <img class="card-img img-fluid article-img" aria-hidden="true" src="">
-            {% endif %}
-                <div class="card-img-overlay white-text">
-                    <div class="card-text">
+          <div class="card">
+            <div class="clean-banner">
+              <img class="clean-banner-image"
+                src="{{ article.best_large_image_url }}"
+                alt="{{ article.title | striptags }}">
+            </div>
+            <div class="card-text padding-block-1 padding-inline-1">
                         <p class="text-uppercase">{{ article.section.name }}</p>
                         <h1 class="card-title align-text-bottom article-title">{{ article.title|safe }}</h1>
                         {% if article.is_published or proofing %}
                           {% include "common/elements/journal/article_authors_br.html" %}
                         {% endif %}
-                    </div>
-                </div>
             </div>
+          </div>
         </div>
     {% endif %}
 
@@ -76,16 +64,16 @@
                 {% endif %}
                 {% if article.is_published or proofing %}
                     <div class="d-lg-none d-xl-none d-md-none">
-                            <h2>{% trans 'Files' %}</h2>
-                            <p>
-                            {% if galleys %}
+                        <h2>{% trans 'Files' %}</h2>
+                        {% if galleys %}
+                            <ul class="list-no-bullet">
                                 {% for galley in galleys %}
+                                    <li><a href="{% url 'article_download_galley' article.id galley.id %}">{% trans "Download" %} {{ galley.label }}</a></li>
                                     {% if galley.file.mime_type == 'application/pdf' and journal.view_pdf_button %}
-                                        <a href="{% url 'article_view_galley' article.id galley.id %}">
+                                        <li><a href="{% url 'article_view_galley' article.id galley.id %}">
                                             {% trans 'View'%} PDF
                                             {% include "elements/icons/link_new_tab.html" %}
-                                        </a>
-                                        <br/>
+                                        </a></li>
                                     {% endif %}
                                     <a href="{% url 'article_download_galley' article.id galley.id %}">
                                         {{ galley.label }}
@@ -94,15 +82,15 @@
                                     <br/>
                                 {% endfor %}
                                 {% if proofing %}
-                                    <p id="note_to_proofreader_1">
+                                    <li id="note_to_proofreader_1">
                                         <i aria-hidden="true" class="fa fa-info"></i>
                                         Note to proofreader: Download links on this page begin to work when the article is published.
-                                    </p>
+                                    </li>
                                 {% endif %}
-                            {% else %}
-                                <p> {% trans 'Downloads are not available for this article.' %}</p>
-                            {% endif %}
-                        </p>
+                            </ul>
+                        {% else %}
+                            <p> {% trans 'Downloads are not available for this article.' %}</p>
+                        {% endif %}
                     </div>
                 {% endif %}
 
@@ -348,11 +336,11 @@
                         {% for author, credit_records in article.authors_and_credits.items %}
                           <li>
                             {{ author.full_name }}:
-                            <span class="credit">
-                              {% for record in credit_records %}
-                                {{ record }}{% if not forloop.last %}, {% endif %}
-                              {% endfor %}
-                            </span>
+                            {% for record in credit_records %}
+                                <ul class="list-inline comma-sep">
+                                    <li>{{ record }}</li>
+                                </ul>
+                            {% endfor %}
                           </li>
                         {% endfor %}
                         </ul>
@@ -371,7 +359,7 @@
                 <div class="sticky-toc article-menu" id="toc-section">
                     <section aria-labelledby="toc-title">
                         <h2 id="toc-title">{% trans "Table of Contents" %}</h2>
-                        <ul id="toc" class="no-bullet-list table-of-contents"></ul>
+                        <ul id="toc" class="list-no-bullet table-of-contents"></ul>
                     </section>
                 </div>
             {% endif %}
