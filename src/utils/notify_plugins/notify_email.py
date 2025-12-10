@@ -9,14 +9,78 @@ from django.core.mail.message import sanitize_address
 from django.utils.encoding import force_str
 from django.utils.html import strip_tags
 
+from journal.models import Journal
 from utils import setting_handler
 from utils import notify
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 SANITIZE_FROM_RE = re.compile('\r|\n|\t|"|<|>|,')
 
 
 def sanitize_from(from_):
     return re.sub(SANITIZE_FROM_RE, "", from_)
+
+
+def get_attr_or_key(source, key, default=None, call_method=False):
+    """
+    Safely get `key` from `source`, handling both dicts and objects.
+
+    Args:
+        source: Dictionary or object to extract value from
+        key: Key (dict) or attribute name (object) to retrieve
+        default: Value to return if key/attribute not found
+        call_method: If True and value is callable, invoke it
+
+    Returns:
+        The value associated with key, or default if not found
+
+    Examples:
+        >>> get_attr_or_key({"name": "John"}, "name")
+        'John'
+        >>> get_attr_or_key(user, "email")
+        'user@example.com'
+        >>> get_attr_or_key(user, "full_name", call_method=True)
+        'John Doe'
+    """
+    if isinstance(source, dict):
+        value = source.get(key, default)
+    else:
+        value = getattr(source, key, default)
+
+    if call_method and callable(value):
+        return value()
+    return value
+
+
+def get_journal_from_request(request):
+    """
+    Extract and reconstruct Journal from request (HttpRequest or dict).
+    Returns Journal instance or None.
+    """
+    if not request:
+        return None
+
+    journal_data = get_attr_or_key(request, "journal")
+
+    if not journal_data:
+        return None
+
+    # If it's already a Journal instance, use it
+    if isinstance(journal_data, Journal):
+        return journal_data
+
+    # If it's a dict with a code, fetch the Journal
+    if isinstance(journal_data, dict):
+        code = journal_data.get("code")
+        if code:
+            try:
+                return Journal.objects.get(code=code)
+            except Journal.DoesNotExist:
+                logger.warning(f"Journal with code '{code}' not found")
+
+    return None
 
 
 def send_email(
@@ -30,19 +94,23 @@ def send_email(
     attachment=None,
     replyto=None,
 ):
+    repository = get_attr_or_key(request, "repository")
+    press = get_attr_or_key(request, "press")
+    main_contact = get_attr_or_key(press, "main_contact")
+
     if journal:
         from_email = setting_handler.get_setting(
             "general", "from_address", journal
         ).value
         html = "{0}<br />{1}".format(html, journal.name)
-    elif request.repository:
+    elif repository:
         # fetches the default setting for this email.
         subject = setting_handler.get_email_subject_setting(
             "email_subject", subject, journal=None
         )
-        from_email = request.press.main_contact
+        from_email = main_contact
     else:
-        from_email = request.press.main_contact
+        from_email = main_contact
 
     if isinstance(to, str):
         if settings.DUMMY_EMAIL_DOMAIN in to:
@@ -52,23 +120,45 @@ def send_email(
     elif isinstance(to, Iterable):
         to = [email for email in to if not settings.DUMMY_EMAIL_DOMAIN in email]
 
+    user = get_attr_or_key(request, "user")
+    user_is_anonymous = get_attr_or_key(user, "is_anonymous")
+    user_email = get_attr_or_key(user, "email")
+
+    # Handle user_full_name because in serialized requests it's a string,
+    # in the HttpRequest, it's a method that needs to be called
+    if isinstance(user, dict):
+        user_full_name = user.get("full_name", "")
+    else:
+        user_full_name = user.full_name() if user and hasattr(user, "full_name") else ""
+
     if (
         request
-        and request.user
-        and not request.user.is_anonymous
-        and request.user.email not in to
+        and user
+        and not user_is_anonymous
+        and user_email
+        and user_email not in to
     ):
-        reply_to = [request.user.email]
+        reply_to = [user_email]
         full_from_string = '"{0}" <{1}>'.format(
-            sanitize_from(request.user.full_name()),
+            sanitize_from(user_full_name),
             from_email,
         )
     else:
         reply_to = []
         if request:
-            full_from_string = '"{0}" <{1}>'.format(
-                sanitize_from(request.site_type.name), from_email
-            )
+            site_type = get_attr_or_key(request, "site_type")
+
+            # Handle site_type which might not exist in serialized request
+            if site_type:
+                name = get_attr_or_key(site_type, "name")
+                if name:
+                    full_from_string = '"{0}" <{1}>'.format(
+                        sanitize_from(name), from_email
+                    )
+                else:
+                    full_from_string = from_email
+            else:
+                full_from_string = from_email
         else:
             full_from_string = from_email
 
@@ -119,11 +209,17 @@ def send_email(
             msg.attach(file_.name, file_.read(), file_.content_type)
             file_.close()
 
-    elif request and request.FILES and request.FILES.getlist("attachment"):
-        for file in request.FILES.getlist("attachment"):
-            file.open()
-            msg.attach(file.name, file.read(), file.content_type)
-            file.close()
+    elif request:
+        # FILES aren't JSON-serializable, so the files are only attached for HttpRequest objects
+        # TODO: If attached files are required, we'd likely need to retrieve them from a file storage (filesystem, S3, etc.)
+        files = get_attr_or_key(request, "FILES")
+        if files and hasattr(files, "getlist"):
+            file_list = files.getlist("attachment")
+            if file_list:
+                for file in file_list:
+                    file.open()
+                    msg.attach(file.name, file.read(), file.content_type)
+                    file.close()
     return msg.send()
 
 
@@ -151,11 +247,12 @@ def notify_hook(**kwargs):
     custom_reply_to = kwargs.pop("custom_reply_to", None)
 
     if request:
+        journal = get_journal_from_request(request)
         subject_setting_value = setting_handler.get_email_subject_setting(
-            "email_subject", subject, request.journal
+            "email_subject", subject, journal
         )
-        if request.journal:
-            subject = f"[{request.journal.code}] {subject_setting_value}"
+        if journal:
+            subject = f"[{journal.code}] {subject_setting_value}"
         else:
             subject = subject_setting_value
 
@@ -165,7 +262,7 @@ def notify_hook(**kwargs):
             subject,
             to,
             html,
-            request.journal,
+            journal,
             request,
             bcc,
             cc,

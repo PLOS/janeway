@@ -30,7 +30,7 @@ def generate_password(password_length=10):
 
 
 def get_ip_address(request):
-    if request is None:
+    if request is None or isinstance(request, dict):
         return None
 
     client_ip, is_routable = get_client_ip(request)
