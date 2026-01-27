@@ -140,7 +140,7 @@ TEMPLATES = [
                 os.path.join(BASE_DIR, "templates", "common"),
                 os.path.join(BASE_DIR, "templates", "admin"),
             ]
-            + plugin_installed_apps.load_plugin_templates(BASE_DIR)
+            # + plugin_installed_apps.load_plugin_templates(BASE_DIR)
             + plugin_installed_apps.load_homepage_element_templates(BASE_DIR)
         ),
         "OPTIONS": {
