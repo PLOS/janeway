@@ -43,6 +43,7 @@ urlpatterns = [
     path("repository/", include("repository.urls")),
     path("review/", include("review.urls")),
     path("rss/", include("rss.urls")),
+    path("submit/", include('customsubmission.urls')),
     path("submit/", include("submission.urls")),
     path("transform/", include("transform.urls")),
     # As part of the typesetting plugin's merge to core we need to support
@@ -52,7 +53,6 @@ urlpatterns = [
     path("typesetting/", include("typesetting.urls")),
     path("utils/", include("utils.urls")),
     path("workflow/", include("workflow.urls")),
-    path('plugins/customsubmission/', include('customsubmission.urls')),
     # Root Site URLS
     re_path(r"^$", press_views.index, name="website_index"),
     re_path(r"^journals/$", press_views.journals, name="press_journals"),
