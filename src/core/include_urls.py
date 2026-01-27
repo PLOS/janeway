@@ -52,6 +52,7 @@ urlpatterns = [
     path("typesetting/", include("typesetting.urls")),
     path("utils/", include("utils.urls")),
     path("workflow/", include("workflow.urls")),
+    path('plugins/customsubmission/', include('customsubmission.urls')),
     # Root Site URLS
     re_path(r"^$", press_views.index, name="website_index"),
     re_path(r"^journals/$", press_views.journals, name="press_journals"),
