@@ -7,7 +7,6 @@ import os
 
 EXCLUDED_PLUGIN_DIRS = ["__pycache__", "typesetting"]
 
-# THIS IS WHERE THE SAFETY GUARD IS FOR PLUGINS/urlplugin
 def load_plugin_apps(base_dir):
     path = os.path.join(base_dir, "plugins")
     root, dirs, files = next(os.walk(path))
@@ -16,7 +15,7 @@ def load_plugin_apps(base_dir):
         "plugins.{0}".format(dir) for dir in dirs if dir not in EXCLUDED_PLUGIN_DIRS
     ]
 
-
+# THIS IS WHERE THE SAFETY GUARD IS FOR PLUGINS/urlplugin
 def load_plugin_templates(base_dir):
     path = os.path.join(base_dir, "plugins")
     root, dirs, files = next(os.walk(path))
