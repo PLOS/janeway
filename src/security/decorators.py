@@ -275,6 +275,8 @@ def editor_or_journal_manager_required(func):
             return func(request, *args, **kwargs)
         deny_access(request)
 
+    return wrapper
+
 
 def editor_user_required(func):
     """This decorator checks that a user is an editor, or
@@ -746,6 +748,11 @@ def article_stage_accepted_or_later_required(func):
         article_object = models.Article.get_article(
             request.journal, identifier_type, identifier
         )
+        if article_object and article_object.journal.get_setting(
+            "general",
+            "uses_isolinear_plugin",
+        ):
+            return func(request, *args, **kwargs)
 
         if article_object is None or not article_object.is_accepted():
             deny_access(request)
@@ -1419,7 +1426,7 @@ def article_stage_review_required(func):
 
         article = get_object_or_404(models.Article, pk=article_id)
 
-        if not article.stage in models.REVIEW_STAGES:
+        if article.stage not in models.REVIEW_STAGES:
             deny_access(request)
         else:
             return func(request, article_id, *args, **kwargs)
