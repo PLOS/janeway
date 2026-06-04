@@ -3,12 +3,14 @@ __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
 
-from collections import defaultdict
+import json
+import warnings
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone, translation
@@ -22,6 +24,7 @@ from core import files, models as core_models
 from core.logic import create_organization_name, reverse_with_next
 from core.views import GenericFacetedListView
 from core.forms import (
+    AccountAffiliationForm,
     ConfirmDeleteForm,
     OrcidAffiliationForm,
     OrganizationNameForm,
@@ -40,7 +43,7 @@ from security.decorators import (
 from submission import forms, models, logic, decorators
 from events import logic as event_logic
 from utils import setting_handler
-from utils import orcid
+from utils import shared as utils_shared, orcid
 from utils.forms import clean_orcid_id
 from utils.decorators import GET_language_override
 from utils.shared import create_language_override_redirect
@@ -313,10 +316,7 @@ def submit_authors(request, article_id):
             article.save()
             return redirect(reverse("submit_files", kwargs={"article_id": article_id}))
 
-    authors = []
-    for author, credits in article.authors_and_credits().items():
-        credit_form = logic.get_credit_form(request, author)
-        authors.append((author, credits, credit_form))
+    authors = logic.get_current_authors(article, request)
 
     template = "admin/submission/submit_authors.html"
     context = {
@@ -371,10 +371,7 @@ def edit_current_authors(request, article_id):
     elif "remove_credit" in request.POST:
         last_changed_author = logic.remove_credit_role(request, article)
 
-    authors = []
-    for author, credits in article.authors_and_credits().items():
-        credit_form = logic.get_credit_form(request, author)
-        authors.append((author, credits, credit_form))
+    authors = logic.get_current_authors(article, request)
 
     template = "admin/elements/current_authors_inner.html"
     context = {
@@ -494,7 +491,7 @@ def delete_funder(request, article_id, funder_id):
 @user_can_edit_article
 def delete_author(request, article_id, author_id):
     """Allows submitting author to remove an author from their article."""
-    raise DeprecationWarning("Use delete_frozen_author instead.")
+    warnings.warn("Use delete_frozen_author instead.")
     article = get_object_or_404(models.Article, pk=article_id, journal=request.journal)
     author = get_object_or_404(core_models.Account, pk=author_id)
     if author == article.correspondence_author:
@@ -924,10 +921,7 @@ def edit_author_metadata(request, article_id):
             author = logic.add_author_from_search(search_term, request, article)
             last_changed_author = author
 
-    authors = []
-    for author, credits in article.authors_and_credits().items():
-        credit_form = logic.get_credit_form(request, author)
-        authors.append((author, credits, credit_form))
+    authors = logic.get_current_authors(article, request)
 
     template = "admin/submission/edit/author_metadata.html"
     context = {
@@ -1016,12 +1010,8 @@ def edit_author(request, article_id, author_id):
 
 @production_user_or_editor_required
 def order_authors(request, article_id):
-    raise DeprecationWarning("Use edit_author_metadata instead.")
-    article = get_object_or_404(
-        models.Article,
-        pk=article_id,
-        journal=request.journal,
-    )
+    warnings.warn("Use edit_author_metadata instead.")
+    article = get_object_or_404(models.Article, pk=article_id, journal=request.journal)
 
     if request.POST:
         ids = [int(_id) for _id in request.POST.getlist("authors[]")]
@@ -1034,41 +1024,43 @@ def order_authors(request, article_id):
     return HttpResponse("Thanks")
 
 
-@editor_user_required
-def fields_list(request):
-    """
-    List view for additional fields grouped by Section or shown as Global.
-    Ordered by FieldSection.order where applicable.
-    """
-    journal = request.journal
+@require_POST
+@user_can_edit_article
+def link_author_to_account(request, article_id, author_id):
+    next_url = request.GET.get("next", "")
 
-    field_sections = (
-        models.FieldSection.objects.filter(
-            field__journal=journal,
-        )
-        .select_related(
-            "field",
-            "section",
-        )
-        .order_by(
-            "order",
-            "section__name",
-        )
+    article = get_object_or_404(models.Article, pk=article_id, journal=request.journal)
+    author = get_object_or_404(models.FrozenAuthor, pk=author_id, article=article)
+    account = get_object_or_404(
+        core_models.Account,
+        email__iexact=author.email,
+        accountrole__role__slug="author",
     )
-    grouped = defaultdict(list)
-    global_fields = models.Field.objects.filter(
-        journal=journal,
-        sections=None,
-    ).order_by("order", "name")
-    grouped["Global"] = list(global_fields)
-    for fs in field_sections:
-        grouped[fs.section.name].append(fs.field)
 
-    template = "admin/submission/manager/fields_list.html"
-    context = {
-        "grouped_fields": grouped.items(),
-    }
-    return render(request, template, context)
+    author_account_form = forms.FrozenAuthorAccountForm(
+        {"author": account.pk},
+        instance=author,
+    )
+    if author_account_form.is_valid():
+        author_account_form.save()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            "%(author_name)s (%(email)s) is now linked to a user account."
+            % {"author_name": author.full_name(), "email": author.email},
+        )
+
+    if next_url:
+        return redirect(next_url)
+    else:
+        return redirect(
+            reverse(
+                "submission_edit_author_metadata",
+                kwargs={
+                    "article_id": article_id,
+                },
+            )
+        )
 
 
 @editor_user_required
@@ -1412,6 +1404,7 @@ def affiliation_create(request, article_id, author_id, organization_id):
         frozen_author=author,
     ).exists()
     form = forms.AuthorAffiliationForm(
+        journal=request.journal,
         frozen_author=author,
         organization=organization,
         initial={
@@ -1422,6 +1415,7 @@ def affiliation_create(request, article_id, author_id, organization_id):
     if request.method == "POST":
         form = forms.AuthorAffiliationForm(
             request.POST,
+            journal=request.journal,
             frozen_author=author,
             organization=organization,
         )
@@ -1476,6 +1470,7 @@ def affiliation_update(request, article_id, author_id, affiliation_id):
     )
     form = forms.AuthorAffiliationForm(
         instance=affiliation,
+        journal=request.journal,
         frozen_author=author,
         organization=affiliation.organization,
     )
@@ -1484,6 +1479,7 @@ def affiliation_update(request, article_id, author_id, affiliation_id):
         form = forms.AuthorAffiliationForm(
             request.POST,
             instance=affiliation,
+            journal=request.journal,
             frozen_author=author,
             organization=affiliation.organization,
         )
@@ -1645,6 +1641,7 @@ def affiliation_update_from_orcid(
             orcid_affil,
             tzinfo=request.user.preferred_timezone,
             data={"frozen_author": author},
+            journal=request.journal,
         )
         if orcid_affil_form.is_valid():
             new_affils.append(orcid_affil_form.save(commit=False))
