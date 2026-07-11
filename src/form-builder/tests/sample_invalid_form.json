@@ -1,0 +1,36 @@
+{
+  "variables": [
+    {
+      "ID": "thank_you_message",
+      "Type": "str",
+      "Value": "Thank you for submitting to PLOS!"
+    }
+  ],
+  "inputs": [
+    {
+      "ID": "title",
+      "Name": "title",
+      "Label": "Title",
+      "Help Text": "Enter the title of your article",
+      "Required": true,
+      "Variable To Save As": "article.title"
+    },
+    {
+      "ID": "abstract",
+      "Name": "abstract",
+      "Type": "paragraph",
+      "Label": "Abstract",
+      "Help Text": "Enter the abstract of your article",
+      "Required": true,
+      "Variable To Save As": "article.abstract"
+    },
+    {
+      "Name": "word_count",
+      "Type": "number",
+      "Label": "Word Count",
+      "Help Text": "Enter the word count of your article",
+      "Required": true,
+      "Variable To Save As": "article.word_count"
+    }
+  ]
+}

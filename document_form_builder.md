@@ -91,9 +91,11 @@ Stage 1 is meant to create a prototype which tests the viability of the approach
     - JSON
   - Decision criteria
     - Native support in Python/Django
-    - Schema validation capabilities   
+    - Schema validation capabilities
+  - Decision: JSON has been selected as the document type for form structure due to its excellent native support in Python/Django and robust schema validation capabilities.
 - The structure of the form document should be defined with code somehow
   - Some sort of linting should exist which defines what values are/n't allowed
+  - A JSON schema has been created to define the structure of form documents and validate their content
 - The structure of the form document should include at least the following
   - Variable
     - Description: An object which holds values used within the logic. Variables given a save pathway will save 
@@ -252,9 +254,27 @@ Stage 1 is meant to create a prototype which tests the viability of the approach
 
 ## Acceptance Criteria for Stage 1.2 (Implementation)
 - User can upload a form document (XML, YAML, or JSON) 
-  - Form document type decided on in Stage 1.1
+  - Form document type decided on in Stage 1.1 (JSON)
+  - User must have admin role or privileges. 
+  - A page should exist where this upload may happen within the settings area for Janeway (Decide which subsection 
+    this tool should be part of)
+  - On this page, the user should be able to see a list of form pages they have created and click a button to bring 
+    them to a new page which may be used to view and edit the information:
+  - On the edit page for the form, a user should be able to:
+    - View the given data (input, variable, etc) of the form as well as their corresponding information
+      - Separate each data type (input, variable) by type into their own tables
+    - Download the form document related to the form (created on demand from form models)
+    - go to the form they created 
+      - If the form they created requires certain information to be known (such as which article the user is 
+        modifying), then the user is presented with a page to select or manually enter this information
+    - modify the page they created (by uploading a new form document)
+    - restrict which roles have access to this page (default: admins only) 
+    - delete the page
 - The form document is limited to only the "text" input 
 - Uploaded form document is transformed into Django Models (henceforth referred to as “form models”) which capture 
   data from the form document
 - Information a user enters into the newly created (simplified) form mentioned previously is able to be saved in 
   Janeway’s article model.
+  - We will assume the form is, for now, being used within the submission workflow to submit a new article
+  - However, in the future we would like the form to be able to be used to build forms for other areas of Janeway
+- Form documents are validated against a JSON schema to ensure they conform to the expected structure
