@@ -102,6 +102,7 @@ INSTALLED_APPS = [
     "django_bleach",
     # Forms
     "django.forms",
+    "form_builder",
 ]
 
 INSTALLED_APPS += plugin_installed_apps.load_plugin_apps(BASE_DIR)
