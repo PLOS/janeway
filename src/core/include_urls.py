@@ -44,6 +44,7 @@ urlpatterns = [
     path("review/", include("review.urls")),
     path("rss/", include("rss.urls")),
     path("submit/", include("submission.urls")),
+    path("form-builder/", include("form_builder.urls")),
     path("transform/", include("transform.urls")),
     # As part of the typesetting plugin's merge to core we need to support
     # its original url path. Note that the plugin loader will no longer load

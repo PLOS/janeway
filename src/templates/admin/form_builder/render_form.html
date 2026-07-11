@@ -1,0 +1,77 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+
+{% block title %}Form Builder - Render Form{% endblock title %}
+{% block title-section %}Form Builder{% endblock %}
+{% block title-sub %}Render Form{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'form_builder_list_forms' %}">Form Builder</a></li>
+    <li>Render Form</li>
+{% endblock %}
+
+{% block body %}
+<section>
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>{{ form_definition.name }}</h2>
+                </div>
+                <div class="content">
+                    <p>{{ form_definition.description }}</p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for form_input in form_definition.inputs.all %}
+                            <div class="row expanded">
+                                <div class="large-12 columns">
+                                    <label for="{{ form_input.input_id }}">{{ form_input.label }}</label>
+                                    {% if form_input.input_type == 'text' %}
+                                        <input 
+                                            type="text" 
+                                            id="{{ form_input.input_id }}" 
+                                            name="{{ form_input.name }}"
+                                            {% if form_input.required %}required{% endif %}
+                                            {% if form_input.placeholder_value %}placeholder="{{ form_input.placeholder_value }}"{% endif %}
+                                            {% if form_input.default_value %}value="{{ form_input.default_value }}"{% endif %}
+                                        >
+                                    {% elif form_input.input_type == 'paragraph' %}
+                                        <textarea 
+                                            id="{{ form_input.input_id }}" 
+                                            name="{{ form_input.name }}"
+                                            {% if form_input.required %}required{% endif %}
+                                            {% if form_input.placeholder_value %}placeholder="{{ form_input.placeholder_value }}"{% endif %}
+                                        >{% if form_input.default_value %}{{ form_input.default_value }}{% endif %}</textarea>
+                                    {% elif form_input.input_type == 'number' %}
+                                        <input 
+                                            type="number" 
+                                            id="{{ form_input.input_id }}" 
+                                            name="{{ form_input.name }}"
+                                            {% if form_input.required %}required{% endif %}
+                                            {% if form_input.placeholder_value %}placeholder="{{ form_input.placeholder_value }}"{% endif %}
+                                            {% if form_input.default_value %}value="{{ form_input.default_value }}"{% endif %}
+                                        >
+                                    {% endif %}
+                                    {% if form_input.help_text %}
+                                        <p class="help-text">{{ form_input.help_text }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                        
+                        <div class="row expanded">
+                            <div class="large-12 columns">
+                                <button type="submit" class="button success">Submit</button>
+                                <a href="{% url 'form_builder_list_forms' %}" class="button secondary">Back to List</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

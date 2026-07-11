@@ -1,14 +1,8 @@
 # Document-Driven Form Builder Proposal
 This document proposes an approach to creating a document-driven form builder through iterative stages. 
 
-# Bet
+## Bet
 Create a document-driven form builder.
-
-## Details
-By "document-driven" we mean a user may upload a structured document.
-
-The form builder then takes this document and transforms it into a form which can be used by an author to complete 
-tasks.
 
 ## Reason
 - Creating forms and associated logic for forms is tedious and repetitive for developers.
@@ -17,6 +11,11 @@ tasks.
   content transfers.
 
 ## Definitions
+By "document-driven" we mean a user may upload a structured document.
+
+The form builder then takes this document and transforms it into a form which can be used by an author to complete 
+tasks.
+
 The following define certain terms used within the document
 - input type 
   - will refer to an HTML type form input as defined in the following section ("Input Types")
