@@ -1,0 +1,48 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+
+{% block title %}Form Builder - Upload Form{% endblock title %}
+{% block title-section %}Form Builder{% endblock %}
+{% block title-sub %}Upload Form{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'form_builder_list_forms' %}">Form Builder</a></li>
+    <li>Upload Form</li>
+{% endblock %}
+
+{% block body %}
+<section>
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Upload Form</h2>
+                </div>
+                <div class="content">
+                    <p>Upload a JSON form document to create a new form definition.</p>
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row expanded">
+                            <div class="large-6 columns">
+                                <label for="json_file">JSON Form Document</label>
+                                <input type="file" name="json_file" id="json_file" accept=".json" required>
+                                <p class="help-text">Select a valid JSON file containing the form definition.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="row expanded">
+                            <div class="large-12 columns">
+                                <button type="submit" class="button success">Upload Form</button>
+                                <a href="{% url 'form_builder_list_forms' %}" class="button secondary">Cancel</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

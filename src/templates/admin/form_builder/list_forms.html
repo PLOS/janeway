@@ -1,0 +1,66 @@
+{% extends "admin/core/base.html" %}
+{% load static %}
+
+{% block title %}Form Builder - List Forms{% endblock title %}
+{% block title-section %}Form Builder{% endblock %}
+{% block title-sub %}List Forms{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'form_builder_list_forms' %}">Form Builder</a></li>
+    <li>List Forms</li>
+{% endblock %}
+
+{% block body %}
+<section>
+    <div class="row expanded">
+        <div class="large-12 columns">
+            <div class="box">
+                <div class="title-area">
+                    <h2>Form Definitions</h2>
+                    <a href="{% url 'form_builder_upload_form' %}" class="button success">Upload New Form</a>
+                </div>
+                <div class="content">
+                    {% if forms %}
+                        <div class="table-scroll">
+                            <table class="small">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Created Date</th>
+                                        <th>Modified Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for form in forms %}
+                                        <tr>
+                                            <td>{{ form.name }}</td>
+                                            <td>{{ form.description }}</td>
+                                            <td>{{ form.created_date }}</td>
+                                            <td>{{ form.modified_date }}</td>
+                                            <td>
+                                                <a href="{% url 'form_builder_render_form' form.id %}" class="button tiny">Preview</a>
+                                                <a href="{% url 'form_builder_download_form' form.id %}" class="button tiny">Download</a>
+                                                <form method="post" action="{% url 'form_builder_delete_form' form.id %}" style="display: inline;">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="button tiny alert" onclick="return confirm('Are you sure you want to delete this form?')">Delete</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p>No forms have been created yet.</p>
+                        <p><a href="{% url 'form_builder_upload_form' %}" class="button success">Upload Your First Form</a></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

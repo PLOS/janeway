@@ -8,3 +8,5 @@ snakeviz
 django-browser-reload
 tox
 ruff>=0.15
+pytest
+pytest-django
