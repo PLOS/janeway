@@ -11,6 +11,7 @@ from typing import Dict, Any, List, Tuple, Optional
 from django.db import transaction
 from form_builder.models import FormDefinition, FormVariable, FormInput, FormValidationRule
 from form_builder.validation.form_validator import FormValidator
+from form_builder.signals import form_processed, form_processing
 
 # Custom exceptions for different error types
 class FormValidationError(Exception):
@@ -70,6 +71,9 @@ class FormProcessor:
             FormProcessorResult: Result object indicating success or failure.
         """
         try:
+            # Send signal that form processing is starting
+            form_processing.send(sender=self.__class__, document=document)
+            
             # Step 1: Validate the form document against the schema
             is_valid, errors = self.validator.validate_form_document(document)
             if not is_valid:
@@ -81,6 +85,9 @@ class FormProcessor:
             
             # Step 3: Save the models to the database
             self._save_models(form_definition, document.get('id'))
+            
+            # Send signal that form processing is complete
+            form_processed.send(sender=self.__class__, form_definition=form_definition)
             
             self.logger.info(f"Successfully processed form: {form_definition.name}")
             return FormProcessorResult(success=True, form_definition=form_definition)
@@ -111,7 +118,17 @@ class FormProcessor:
         try:
             with open(file_path, 'r') as file:
                 document = json.load(file)
-            return self.process_form_document(document)
+            
+            # Send signal that form processing is starting
+            form_processing.send(sender=self.__class__, document=document, file_path=file_path)
+            
+            result = self.process_form_document(document)
+            
+            # If processing was successful, send signal that form processing is complete
+            if result.success:
+                form_processed.send(sender=self.__class__, form_definition=result.form_definition, file_path=file_path)
+            
+            return result
         except FileNotFoundError:
             error_msg = f"Form document file not found at {file_path}"
             self.logger.error(error_msg)

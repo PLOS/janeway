@@ -1,5 +1,6 @@
 {% extends "admin/core/base.html" %}
 {% load static %}
+{% load form_builder_tags %}
 
 {% block title %}Form Builder - Render Form{% endblock title %}
 {% block title-section %}Form Builder{% endblock %}
@@ -23,7 +24,18 @@
                 <div class="content">
                     <p>{{ form_definition.description }}</p>
                     
-                    <form method="post">
+                    {% if errors %}
+                    <div class="alert alert-danger">
+                        <h4>Form Submission Errors</h4>
+                        <ul>
+                        {% for field_name, error in errors.items %}
+                            <li><strong>{{ field_name }}:</strong> {{ error }}</li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" action="{% url 'form_builder_submit_form' form_definition.id %}">
                         {% csrf_token %}
                         {% for form_input in form_definition.inputs.all %}
                             <div class="row expanded">
@@ -36,7 +48,7 @@
                                             name="{{ form_input.name }}"
                                             {% if form_input.required %}required{% endif %}
                                             {% if form_input.placeholder_value %}placeholder="{{ form_input.placeholder_value }}"{% endif %}
-                                            {% if form_input.default_value %}value="{{ form_input.default_value }}"{% endif %}
+                                            {% if form_data %}value="{{ form_data|get_item:form_input.name }}"{% elif form_input.default_value %}value="{{ form_input.default_value }}"{% endif %}
                                         >
                                     {% elif form_input.input_type == 'paragraph' %}
                                         <textarea 
@@ -44,7 +56,7 @@
                                             name="{{ form_input.name }}"
                                             {% if form_input.required %}required{% endif %}
                                             {% if form_input.placeholder_value %}placeholder="{{ form_input.placeholder_value }}"{% endif %}
-                                        >{% if form_input.default_value %}{{ form_input.default_value }}{% endif %}</textarea>
+                                        >{% if form_data %}{{ form_data|get_item:form_input.name }}{% elif form_input.default_value %}{{ form_input.default_value }}{% endif %}</textarea>
                                     {% elif form_input.input_type == 'number' %}
                                         <input 
                                             type="number" 
@@ -52,7 +64,7 @@
                                             name="{{ form_input.name }}"
                                             {% if form_input.required %}required{% endif %}
                                             {% if form_input.placeholder_value %}placeholder="{{ form_input.placeholder_value }}"{% endif %}
-                                            {% if form_input.default_value %}value="{{ form_input.default_value }}"{% endif %}
+                                            {% if form_data %}value="{{ form_data|get_item:form_input.name }}"{% elif form_input.default_value %}value="{{ form_input.default_value }}"{% endif %}
                                         >
                                     {% endif %}
                                     {% if form_input.help_text %}

@@ -31,6 +31,11 @@ class FormDefinition(models.Model):
     modified_date = models.DateTimeField(
         auto_now=True, help_text="When the form was last modified"
     )
+    allowed_roles = models.ManyToManyField(
+        'core.Role',
+        blank=True,
+        help_text="Roles allowed to access this form. If empty, all roles can access."
+    )
 
     def __str__(self):
         return self.name

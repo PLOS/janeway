@@ -45,8 +45,9 @@
 
                 <div class="content">
                     <div class="button-group stacked">
-                        <a class="button" href="{% url 'core_edit_settings_group' "submission" %}">Submission Settings</a>
+                        <a class="button" href="{% url 'core_edit_settings_group' 'submission' %}">Submission Settings</a>
                         <a class="button" href="{% url 'submission_configurator' %}">Submission Fields Configurator</a>
+                        <a class="button" href="{% url 'form_builder_list_forms' %}">Form Builder</a>
                         <a class="button" href="{% url 'submission_fields' %}">Additional Submission Fields</a>
                         {% if journal_settings.general.limit_access_to_submission and request.user.is_staff %}
                           <a class="button" href="{% url 'manage_access_requests' %}">

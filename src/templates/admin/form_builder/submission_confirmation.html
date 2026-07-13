@@ -1,0 +1,35 @@
+{% extends "admin/core/manager/base.html" %}
+{% block title %}Form Submission Confirmation{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    <li><a href="{% url 'core_manager_index' %}">Manager</a></li>
+    <li><a href="{% url 'form_builder_list_forms' %}">Form Builder</a></li>
+    <li>Submission Confirmation</li>
+{% endblock %}
+
+{% block content %}
+<div class="row expanded">
+    <div class="large-12 columns">
+        <div class="box">
+            <div class="title-area">
+                <h2>Form Submitted Successfully</h2>
+            </div>
+            <div class="content">
+                <p>Your form "{{ form_definition.name }}" has been submitted successfully.</p>
+                <p>A new article has been created with the following details:</p>
+                <ul>
+                    <li><strong>Title:</strong> {{ article.title }}</li>
+                    <li><strong>Abstract:</strong> {{ article.abstract|truncatewords:20 }}</li>
+                    <li><strong>Stage:</strong> {{ article.stage }}</li>
+                    <li><strong>Owner:</strong> {{ article.owner }}</li>
+                </ul>
+                <p>
+                    <a href="{% url 'edit_metadata' article.pk %}" class="button primary">View Article</a>
+                    <a href="{% url 'form_builder_list_forms' %}" class="button secondary">Back to Forms</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -7,4 +7,5 @@ class FormBuilderConfig(AppConfig):
     name = "form_builder"
 
     def ready(self):
-        pass
+        # Import signals to register them
+        from . import signals  # noqa: F401

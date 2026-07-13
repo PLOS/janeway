@@ -36,4 +36,10 @@ urlpatterns = [
         views.render_form,
         name="form_builder_render_form",
     ),
+    # Submit form view
+    re_path(
+        r"^form/(?P<form_id>[0-9a-zA-Z-]+)/submit/$",
+        views.submit_form,
+        name="form_builder_submit_form",
+    ),
 ]
