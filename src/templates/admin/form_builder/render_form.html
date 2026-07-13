@@ -40,36 +40,7 @@
                         {% for form_input in form_definition.inputs.all %}
                             <div class="row expanded">
                                 <div class="large-12 columns">
-                                    <label for="{{ form_input.input_id }}">{{ form_input.label }}</label>
-                                    {% if form_input.input_type == 'text' %}
-                                        <input 
-                                            type="text" 
-                                            id="{{ form_input.input_id }}" 
-                                            name="{{ form_input.name }}"
-                                            {% if form_input.required %}required{% endif %}
-                                            {% if form_input.placeholder_value %}placeholder="{{ form_input.placeholder_value }}"{% endif %}
-                                            {% if form_data %}value="{{ form_data|get_item:form_input.name }}"{% elif form_input.default_value %}value="{{ form_input.default_value }}"{% endif %}
-                                        >
-                                    {% elif form_input.input_type == 'paragraph' %}
-                                        <textarea 
-                                            id="{{ form_input.input_id }}" 
-                                            name="{{ form_input.name }}"
-                                            {% if form_input.required %}required{% endif %}
-                                            {% if form_input.placeholder_value %}placeholder="{{ form_input.placeholder_value }}"{% endif %}
-                                        >{% if form_data %}{{ form_data|get_item:form_input.name }}{% elif form_input.default_value %}{{ form_input.default_value }}{% endif %}</textarea>
-                                    {% elif form_input.input_type == 'number' %}
-                                        <input 
-                                            type="number" 
-                                            id="{{ form_input.input_id }}" 
-                                            name="{{ form_input.name }}"
-                                            {% if form_input.required %}required{% endif %}
-                                            {% if form_input.placeholder_value %}placeholder="{{ form_input.placeholder_value }}"{% endif %}
-                                            {% if form_data %}value="{{ form_data|get_item:form_input.name }}"{% elif form_input.default_value %}value="{{ form_input.default_value }}"{% endif %}
-                                        >
-                                    {% endif %}
-                                    {% if form_input.help_text %}
-                                        <p class="help-text">{{ form_input.help_text }}</p>
-                                    {% endif %}
+                                    {% render_form_input_tag form_input form_data errors %}
                                 </div>
                             </div>
                         {% endfor %}
