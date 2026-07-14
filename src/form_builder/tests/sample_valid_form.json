@@ -1,88 +1,88 @@
 {
   "variables": [
     {
-      "ID": "thank_you_message",
-      "Type": "str",
-      "Value": "Thank you for submitting to PLOS!"
+      "id": "thank_you_message",
+      "type": "str",
+      "value": "Thank you for submitting to PLOS!"
     },
     {
-      "ID": "submission_deadline",
-      "Type": "str | None",
-      "Value": null
+      "id": "submission_deadline",
+      "type": "str | None",
+      "value": null
     }
   ],
   "inputs": [
     {
-      "ID": "title",
-      "Name": "title",
-      "Type": "text",
-      "Label": "Title",
-      "Help Text": "Enter the title of your article",
-      "Required": true,
-      "Variable To Save As": "article.title",
-      "Validation": [
+      "id": "title",
+      "name": "title",
+      "type": "text",
+      "label": "Title",
+      "helpText": "Enter the title of your article",
+      "required": true,
+      "variableToSaveAs": "article.title",
+      "validation": [
         {
-          "Rule": {
-            "Type": "min_length",
-            "Value": 5,
-            "Error": "Title must be at least 5 characters long"
+          "rule": {
+            "type": "min_length",
+            "value": 5,
+            "error": "Title must be at least 5 characters long"
           }
         },
         {
-          "Rule": {
-            "Type": "pattern",
-            "Value": "^[A-Z].*",
-            "Error": "Title must start with a capital letter"
+          "rule": {
+            "type": "pattern",
+            "value": "^[A-Z].*",
+            "error": "Title must start with a capital letter"
           }
         }
       ]
     },
     {
-      "ID": "abstract",
-      "Name": "abstract",
-      "Type": "paragraph",
-      "Label": "Abstract",
-      "Help Text": "Enter the abstract of your article",
-      "Required": true,
-      "Variable To Save As": "article.abstract",
-      "Validation": [
+      "id": "abstract",
+      "name": "abstract",
+      "type": "paragraph",
+      "label": "Abstract",
+      "helpText": "Enter the abstract of your article",
+      "required": true,
+      "variableToSaveAs": "article.abstract",
+      "validation": [
         {
-          "Rule": {
-            "Type": "min_length",
-            "Value": 100,
-            "Error": "Abstract must be at least 100 characters long"
+          "rule": {
+            "type": "min_length",
+            "value": 100,
+            "error": "Abstract must be at least 100 characters long"
           }
         },
         {
-          "Rule": {
-            "Type": "max_length",
-            "Value": 5000,
-            "Error": "Abstract must be no more than 5000 characters long"
+          "rule": {
+            "type": "max_length",
+            "value": 5000,
+            "error": "Abstract must be no more than 5000 characters long"
           }
         }
       ]
     },
     {
-      "ID": "word_count",
-      "Name": "word_count",
-      "Type": "number",
-      "Label": "Word Count",
-      "Help Text": "Enter the word count of your article",
-      "Required": true,
-      "Variable To Save As": "article.word_count",
-      "Validation": [
+      "id": "word_count",
+      "name": "word_count",
+      "type": "number",
+      "label": "Word Count",
+      "helpText": "Enter the word count of your article",
+      "required": true,
+      "variableToSaveAs": "article.word_count",
+      "validation": [
         {
-          "Rule": {
-            "Type": "min_value",
-            "Value": 1000,
-            "Error": "Article must be at least 1000 words"
+          "rule": {
+            "type": "min_value",
+            "value": 1000,
+            "error": "Article must be at least 1000 words"
           }
         },
         {
-          "Rule": {
-            "Type": "max_value",
-            "Value": 15000,
-            "Error": "Article must be no more than 15000 words"
+          "rule": {
+            "type": "max_value",
+            "value": 15000,
+            "error": "Article must be no more than 15000 words"
           }
         }
       ]

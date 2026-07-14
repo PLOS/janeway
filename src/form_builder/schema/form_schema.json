@@ -4,26 +4,44 @@
   "title": "Form Document Schema",
   "description": "Schema for document-driven form builder",
   "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The ID to utilize for this form. Readonly.",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of this form."
+        },
+        "description": {
+          "type": "string",
+          "description": "The description of this form's purpose."
+        }
+      }
+    },
     "variables": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "ID": {
+          "id": {
             "type": "string",
             "description": "The id used to reference this value"
           },
-          "Type": {
+          "type": {
             "type": "string",
             "default": "any",
             "description": "The python literal type for the given object. Defaults to 'any'. May define the variable could be multiple types such as 'str | None'"
           },
-          "Value": {
+          "value": {
             "type": ["string", "number", "boolean", "null"],
             "description": "The starting value for the variable. May get the values from existing objects such as '{article.title}'."
           }
         },
-        "required": ["ID", "Value"]
+        "required": ["id", "value"]
       }
     },
     "inputs": {
@@ -31,61 +49,61 @@
       "items": {
         "type": "object",
         "properties": {
-          "ID": {
+          "id": {
             "type": "string",
             "description": "The id for the input (literally the `id=\"[value]\"` of an HTML tag)"
           },
-          "Name": {
+          "name": {
             "type": "string",
             "description": "The name for the input (literally the `name=\"[value]\"` of an HTML tag)"
           },
-          "Type": {
+          "type": {
             "type": "string",
             "enum": ["text", "paragraph", "date", "selection", "number"],
             "description": "The type of input which the user is expected to enter"
           },
-          "Enum": {
+          "enum": {
             "type": "array",
             "items": {
               "type": ["string", "number", "boolean"]
             },
             "description": "A list of restricted input choices"
           },
-          "Label": {
+          "label": {
             "type": "string",
             "description": "The label for the input"
           },
-          "Help Text": {
+          "helpText": {
             "type": "string",
             "description": "The help text for the input"
           },
-          "Value": {
+          "value": {
             "type": ["string", "number", "boolean", "null"],
             "description": "Allows the user to set a value for the input, useful for hidden variables use in logic sections."
           },
-          "Default Value": {
+          "defaultValue": {
             "type": ["string", "number", "boolean", "null"],
             "description": "The default value for the input if the user does not enter one"
           },
-          "Placeholder Value": {
+          "placeholderValue": {
             "type": "string",
             "description": "The placeholder value for the user to show an example of what is required for the input"
           },
-          "Required": {
+          "required": {
             "type": "boolean",
             "default": false,
             "description": "True if the input requires the user to enter some value, false otherwise."
           },
-          "Hidden": {
+          "hidden": {
             "type": "boolean",
             "default": false,
             "description": "True if the input is hidden or not rendered on the page, false otherwise."
           },
-          "Variable To Save As": {
+          "variableToSaveAs": {
             "type": "string",
             "description": "The name of the variable to save as, may have dots in name such as \"article.title\" to represent saving the title of an article object."
           },
-          "Logic": {
+          "logic": {
             "type": "object",
             "description": "Conditional logic which allows the user to specify if any of the previous input parameters change based upon conditional logic",
             "properties": {
@@ -106,40 +124,40 @@
               }
             }
           },
-          "Validation": {
+          "validation": {
             "type": "array",
             "items": {
               "type": "object",
               "properties": {
-                "Rule": {
+                "rule": {
                   "type": "object",
                   "properties": {
-                    "Type": {
+                    "type": {
                       "type": "string",
                       "enum": ["min_length", "max_length", "min_value", "max_value", "pattern", "required", "email", "url", "custom", "min_date", "max_date", "format", "enum", "file_types", "max_size", "min_checked", "max_checked", "step"],
                       "description": "The type of validation rule"
                     },
-                    "Value": {
+                    "value": {
                       "type": ["string", "number", "boolean"],
                       "description": "Parameters for the rule (e.g., minimum value, regex pattern)"
                     },
-                    "Error": {
+                    "error": {
                       "type": "string",
                       "description": "Custom error message for when the validation fails"
                     }
                   },
-                  "required": ["Type"]
+                  "required": ["type"]
                 },
-                "Condition": {
+                "condition": {
                   "type": "string",
                   "description": "Optional condition for when the validation should apply"
                 }
               },
-              "required": ["Rule"]
+              "required": ["rule"]
             }
           }
         },
-        "required": ["Type", "Variable To Save As"]
+        "required": ["type"]
       }
     }
   },
