@@ -32,6 +32,7 @@ def render_text_input(form_input, scope, request, form_data=None, errors=None, *
     required = form_input.required or False
     placeholder = form_input.placeholder_value or ""
     help_text = form_input.help_text or ""
+    label = form_input.label or ""
     
     # Render HTML
     html = f'<input type="text" id="{escape(input_id)}" name="{escape(name)}"'
@@ -53,6 +54,10 @@ def render_text_input(form_input, scope, request, form_data=None, errors=None, *
                 html += f' pattern="{rule.value}"'
     
     html += '>'
+    
+    # Add label
+    if label:
+        html = f'<label for="{escape(input_id)}">{escape(label)}</label>' + html
     
     # Add help text if present
     if help_text:
@@ -87,6 +92,7 @@ def render_paragraph_input(form_input, scope, request, form_data=None, errors=No
     required = form_input.required or False
     placeholder = form_input.placeholder_value or ""
     help_text = form_input.help_text or ""
+    label = form_input.label or ""
     
     # Render HTML
     html = f'<textarea id="{escape(input_id)}" name="{escape(name)}"'
@@ -109,6 +115,10 @@ def render_paragraph_input(form_input, scope, request, form_data=None, errors=No
         html += escape(value)
     
     html += '</textarea>'
+    
+    # Add label
+    if label:
+        html = f'<label for="{escape(input_id)}">{escape(label)}</label>' + html
     
     # Add help text if present
     if help_text:
@@ -143,6 +153,7 @@ def render_date_input(form_input, scope, request, form_data=None, errors=None, *
     required = form_input.required or False
     placeholder = form_input.placeholder_value or ""
     help_text = form_input.help_text or ""
+    label = form_input.label or ""
     
     # Render HTML
     html = f'<input type="date" id="{escape(input_id)}" name="{escape(name)}"'
@@ -162,6 +173,10 @@ def render_date_input(form_input, scope, request, form_data=None, errors=None, *
                 html += f' max="{rule.value}"'
     
     html += '>'
+    
+    # Add label
+    if label:
+        html = f'<label for="{escape(input_id)}">{escape(label)}</label>' + html
     
     # Add help text if present
     if help_text:
@@ -196,6 +211,7 @@ def render_selection_input(form_input, scope, request, form_data=None, errors=No
     required = form_input.required or False
     help_text = form_input.help_text or ""
     enum_choices = form_input.enum_choices or []
+    label = form_input.label or ""
     
     # Render HTML
     html = f'<select id="{escape(input_id)}" name="{escape(name)}"'
@@ -215,6 +231,10 @@ def render_selection_input(form_input, scope, request, form_data=None, errors=No
         html += f'<option value="{escape(str(option_value))}"{selected}>{escape(str(option_label))}</option>'
     
     html += '</select>'
+    
+    # Add label
+    if label:
+        html = f'<label for="{escape(input_id)}">{escape(label)}</label>' + html
     
     # Add help text if present
     if help_text:
@@ -249,6 +269,7 @@ def render_number_input(form_input, scope, request, form_data=None, errors=None,
     required = form_input.required or False
     placeholder = form_input.placeholder_value or ""
     help_text = form_input.help_text or ""
+    label = form_input.label or ""
     
     # Render HTML
     html = f'<input type="number" id="{escape(input_id)}" name="{escape(name)}"'
@@ -270,6 +291,10 @@ def render_number_input(form_input, scope, request, form_data=None, errors=None,
                 html += f' step="{rule.value}"'
     
     html += '>'
+    
+    # Add label
+    if label:
+        html = f'<label for="{escape(input_id)}">{escape(label)}</label>' + html
     
     # Add help text if present
     if help_text:
@@ -411,6 +436,7 @@ def render_file_input(form_input, scope, request, form_data=None, errors=None, *
     name = form_input.name or ""
     required = form_input.required or False
     help_text = form_input.help_text or ""
+    label = form_input.label or ""
     
     # Render HTML
     html = f'<input type="file" id="{escape(input_id)}" name="{escape(name)}"'
@@ -442,6 +468,10 @@ def render_file_input(form_input, scope, request, form_data=None, errors=None, *
         # Note: max_size validation would typically be handled with JavaScript
     
     html += '>'
+    
+    # Add label
+    if label:
+        html = f'<label for="{escape(input_id)}">{escape(label)}</label>' + html
     
     # Add help text if present
     if help_text:
@@ -476,6 +506,7 @@ def render_email_input(form_input, scope, request, form_data=None, errors=None, 
     required = form_input.required or False
     placeholder = form_input.placeholder_value or ""
     help_text = form_input.help_text or ""
+    label = form_input.label or ""
     
     # Render HTML
     html = f'<input type="email" id="{escape(input_id)}" name="{escape(name)}"'
@@ -497,6 +528,10 @@ def render_email_input(form_input, scope, request, form_data=None, errors=None, 
                 html += f' pattern="{rule.value}"'
     
     html += '>'
+    
+    # Add label
+    if label:
+        html = f'<label for="{escape(input_id)}">{escape(label)}</label>' + html
     
     # Add help text if present
     if help_text:
@@ -531,6 +566,7 @@ def render_password_input(form_input, scope, request, form_data=None, errors=Non
     required = form_input.required or False
     placeholder = form_input.placeholder_value or ""
     help_text = form_input.help_text or ""
+    label = form_input.label or ""
     
     # Render HTML
     html = f'<input type="password" id="{escape(input_id)}" name="{escape(name)}"'
@@ -550,6 +586,10 @@ def render_password_input(form_input, scope, request, form_data=None, errors=Non
                 html += f' maxlength="{rule.value}"'
     
     html += '>'
+    
+    # Add label
+    if label:
+        html = f'<label for="{escape(input_id)}">{escape(label)}</label>' + html
     
     # Add help text if present
     if help_text:
