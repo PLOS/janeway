@@ -1,4 +1,8 @@
 {
+  "metadata": {
+    "name": "Sample Valid Form",
+    "description": "This form is used to check if simple forms are able to uploaded and rendered correctly."
+  },
   "variables": [
     {
       "id": "thank_you_message",
