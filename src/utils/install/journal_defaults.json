@@ -1453,7 +1453,7 @@
             "type": "rich-text"
         },
         "value": {
-            "default": "<ol><li>Start a copyedit assignment: <ul><li>Choose a copyeditor</li><li>Choose the files available for the copyeditor</li><li>Add instructions and due date</li></ul></li><li>Request the author to review the copyedit task</li><li>After the review, you can: <ul><li>Accept the copyedit</li><li>Reopen the copyedit task and move back to step 1.</li></ul></li></ol>"
+            "default": "<ol><li>Start a copyedit, either by: <ul><li>Assigning a copyeditor: choose a copyeditor, choose the files available for the copyeditor, and add instructions and a due date, or</li><li>Uploading an edited version yourself using Upload Editor Version.</li></ul></li><li>Request the author to review the copyedit task</li><li>After the review, you can: <ul><li>Accept the copyedit</li><li>Reopen the copyedit task and move back to step 1.</li></ul></li></ol>"
         },
         "editable_by": [
             "editor",
@@ -5319,19 +5319,6 @@
     }
   },
   {
-    "value": {"default": "Production Complete"},
-    "setting": {
-        "type": "char",
-        "pretty_name": "Production Complete",
-        "is_translatable": true,
-        "description": "Subject for Email sent to Editors when Production is Complete.",
-        "name": "subject_production_complete"
-    },
-    "group": {
-        "name": "email_subject"
-    }
-  },
-  {
     "group": {
         "name": "email"
     },
@@ -5663,6 +5650,18 @@
             "is_translatable": false,
             "name": "author_affiliation_dates",
             "pretty_name": "Author Affiliation Dates",
+            "type": "boolean"
+        },
+        "value": {
+            "default": "on"
+        },
+        "editable_by": [
+            "editor",
+            "journal-manager"
+        ]
+    },
+    {
+        "group": {
             "name": "general"
         },
         "setting": {
