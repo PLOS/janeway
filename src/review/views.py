@@ -431,7 +431,7 @@ def assignment_notification(request, article_id, editor_id):
 
     template = "review/assignment_notification.html"
     context = {
-        "article": article_id,
+        "article": article,
         "editor": editor,
         "assignment": assignment,
         "form": form,
@@ -603,7 +603,7 @@ def send_review_reminder(request, article_id, review_id, reminder_type):
     form = forms.ReviewReminderForm(initial=form_initials)
 
     if request.POST:
-        form = forms.ReviewReminderForm(request.POST)
+        form = forms.ReviewReminderForm(request.POST, request.FILES)
         if form.is_valid():
             logic.send_review_reminder(request, form, review_assignment, reminder_type)
             messages.add_message(request, messages.SUCCESS, "Email sent")
@@ -1238,16 +1238,27 @@ def add_review_assignment(request, article_id):
                 user = None
 
             if user:
-                return redirect(
-                    reverse(
-                        "review_add_review_assignment",
-                        kwargs={"article_id": article.pk},
+                redirect_url = reverse(
+                    "review_add_review_assignment",
+                    kwargs={"article_id": article.pk},
+                )
+                already_assigned = article.reviewassignment_set.filter(
+                    review_round=article.current_review_round_object(),
+                    reviewer=user,
+                ).exists()
+                if already_assigned:
+                    messages.add_message(
+                        request,
+                        messages.WARNING,
+                        "{} is already assigned as a reviewer for the current "
+                        "review round.".format(user.full_name()),
                     )
-                    + "?"
-                    + parse.urlencode(
+                else:
+                    redirect_url += "?" + parse.urlencode(
                         {"user": new_reviewer_form.data["email"], "id": str(user.pk)},
                     )
-                )
+
+                return redirect(redirect_url)
 
             valid = new_reviewer_form.is_valid()
 
