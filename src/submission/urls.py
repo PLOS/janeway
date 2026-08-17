@@ -2,11 +2,12 @@ __copyright__ = "Copyright 2017 Birkbeck, University of London"
 __author__ = "Martin Paul Eve & Andy Byers"
 __license__ = "AGPL v3"
 __maintainer__ = "Birkbeck Centre for Technology and Publishing"
-from django.urls import re_path
 from django.conf import settings
-from utils.logger import get_logger
+from django.urls import re_path
 
 from submission import views
+from submission.additional_field import views as additional_fields_view
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -97,10 +98,19 @@ urlpatterns = [
     re_path(
         r"^manager/configurator/$", views.configurator, name="submission_configurator"
     ),
-    re_path(r"^manager/additional_fields/$", views.fields, name="submission_fields"),
     re_path(
-        r"^manager/additional_fields/(?P<field_id>\d+)/$",
-        views.fields,
+        r"^manager/additional_fields/$",
+        additional_fields_view.additional_fields_view,
+        name="submission_fields",
+    ),
+    re_path(
+        r"^manager/additional_fields/edit/$",
+        additional_fields_view.edit_additional_field_view,
+        name="submission_fields_add",
+    ),
+    re_path(
+        r"^manager/additional_fields/edit/(?P<field_id>\d+)/$",
+        additional_fields_view.edit_additional_field_view,
         name="submission_fields_id",
     ),
     re_path(r"^manager/licences/$", views.licenses, name="submission_licenses"),
@@ -120,7 +130,9 @@ if not settings.HIJACK_SUBMISSION_ENABLED:
     try:
         urlpatterns += [
             re_path(r"^start/$", views.start, name="submission_start"),
-            re_path(r"^(?P<type>[-\w.]+)/start/$", views.start, name="submission_start"),
+            re_path(
+                r"^(?P<type>[-\w.]+)/start/$", views.start, name="submission_start"
+            ),
         ]
     except AttributeError:
         logger.warning("Could not import default submission views.")
