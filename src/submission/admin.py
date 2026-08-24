@@ -255,8 +255,7 @@ class FieldSectionInline(admin.TabularInline):
 class FieldAdmin(admin.ModelAdmin):
     list_display = ("name", "journal", "press", "kind", "width", "required", "display")
     list_filter = ("journal", "press", "kind", "width", "required", "display")
-    search_fields = ("name", "help_text", "choices")
-    inlines = [FieldSectionInline]
+    search_fields = ("pk", "name", "help_text", "choices")
 
 
 class FieldAnswerAdmin(admin_utils.ArticleFKModelAdmin):
